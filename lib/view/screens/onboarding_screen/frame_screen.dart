@@ -58,7 +58,8 @@ class FrameScreen extends StatelessWidget {
                 SizedBox(height: 60),
                 GestureDetector(
                   onTap: () {
-                    Get.toNamed(AppRoutes.userHomeScreen);
+                    // Get.toNamed(AppRoutes.userHomeScreen);
+                    Get.toNamed(AppRoutes.signUpScreen, arguments: "USER");
                   },
                   child: Container(
                     padding: EdgeInsets.all(20),
@@ -99,7 +100,8 @@ class FrameScreen extends StatelessWidget {
                 SizedBox(height: 16),
                 GestureDetector(
                   onTap: () {
-                    Get.toNamed(AppRoutes.vendorHomeScreen);
+                    // Get.toNamed(AppRoutes.vendorHomeScreen);
+                    Get.toNamed(AppRoutes.signUpScreen, arguments: "VENDOR");
                   },
                   child: Container(
                     padding: EdgeInsets.all(20),

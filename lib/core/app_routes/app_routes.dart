@@ -88,7 +88,7 @@ class AppRoutes {
   static const String vendorPrivacyScreen = "/VendorPrivacyScreen";
   static const String vendorProfileCollectScreen = "/VendorProfileCollectScreen";
   static const String vendorProfileScreen = "/VendorProfileScreen";
-  static const String vendorTermsScreen = "/VendorProfileScreen";
+  static const String vendorTermsScreen = "/VendorTermsScreen";
   static const String vendorMessageListScreen = "/VendorMessageListScreen";
   static const String userSearchVenueScreen = "/UserSearchVenueScreen";
   static const String userVenueDetailsScreen = "/UserVenueDetailsScreen";

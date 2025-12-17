@@ -1,89 +1,107 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:izz_atlas_app/utils/app_icons/app_icons.dart';
-import 'package:izz_atlas_app/view/components/custom_image/custom_image.dart';
-import '../../../../core/app_routes/app_routes.dart';
+import '../../../../utils/ToastMsg/toast_message.dart';
 import '../../../../utils/app_colors/app_colors.dart';
+import '../../../../utils/app_strings/app_strings.dart';
 import '../../../components/custom_button/custom_button.dart';
 import '../../../components/custom_from_card/custom_from_card.dart';
+import '../../../components/custom_loader/custom_loader.dart';
 import '../../../components/custom_text/custom_text.dart';
+import '../controller/auth_controller.dart';
+
 class SetNewPassword extends StatelessWidget {
-  const SetNewPassword({super.key});
+  SetNewPassword({super.key});
+
+  final AuthController authController = Get.find<AuthController>();
 
   @override
   Widget build(BuildContext context) {
+    // Retrieve arguments as a Map
+    final arguments = Get.arguments as Map<String, dynamic>? ?? {};
+    final String userId = arguments['id'] ?? "";
+    final String accessToken = arguments['token'] ?? "";
+
     return Scaffold(
+      backgroundColor: Colors.white,
       body: SingleChildScrollView(
-        child: Stack(
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [AppColors.black, Color(0xff111827), Color(0xff1F2937)],
-                ),
+        child: Padding(
+          padding: const EdgeInsets.only(top: 80, left: 20, right: 20),
+          child: Column(
+            children: [
+              CustomText(
+                text: 'Set New Password',
+                fontSize: 24.w,
+                fontWeight: FontWeight.w600,
+                color: AppColors.black,
+                bottom: 10.h,
               ),
-            ),
-            Padding(
-              padding: EdgeInsets.only(
-                top: 80.0,
-                right: 16.w,
-                left: 16.w,
-                bottom: 40.h,
+              CustomText(
+                text: 'Enter your new password below.',
+                fontSize: 14.w,
+                fontWeight: FontWeight.w500,
+                color: AppColors.black_02,
+                maxLines: 2,
               ),
-              child: Column(
-                children: [
-                  CustomText(
-                    text: "ATLAS",
-                    fontSize: 30,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.white,
-                    bottom: 80.h,
-                  ),
-                  Container(
-                    padding: EdgeInsets.all(10),
-                    width: MediaQuery.sizeOf(context).width,
-                    decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Column(
-                        children: [
-                          CustomText(
-                            text: "SET A NEW PASSWORD",
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.black,
-                            bottom: 10.h,
-                          ),
-                          CustomFormCard(
-                            title: "New Password",
-                            hintText: "Enter your password",
-                            controller: TextEditingController(),
-                          ),
-                          CustomFormCard(
-                            title: "Confirm New Password",
-                            hintText: "Enter your password",
-                            controller: TextEditingController(),
-                          ),
-                          CustomButton(
-                            onTap: () {
-                              Get.toNamed(AppRoutes.loginScreen);
-                            },
-                            title: "UPDATE PASSWORD",
-                            fillColor: AppColors.black,
-                            textColor: AppColors.white,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
+
+              SizedBox(height: 50.h),
+
+              // New Password Field
+              CustomFormCard(
+                title: 'New Password',
+                hintText: "Enter new password",
+                maxLine: 1,
+                isPassword: true,
+                controller: authController.updatePasswordController.value,
               ),
-            ),
-          ],
+
+              SizedBox(height: 10.h),
+
+              // Confirm Password Field
+              CustomFormCard(
+                title: 'Confirm Password',
+                hintText: 'Confirm new password',
+                maxLine: 1,
+                isPassword: true,
+                controller: authController.confirmNewPasswordController.value,
+              ),
+
+              SizedBox(height: 40.h),
+
+              Obx(() {
+                return authController.updatePasswordLoading.value
+                    ? const CustomLoader()
+                    : CustomButton(
+                  onTap: () {
+                    final password = authController.updatePasswordController.value.text;
+                    final confirmPassword = authController.confirmNewPasswordController.value.text;
+
+                    if (password.isEmpty || confirmPassword.isEmpty) {
+                      showCustomSnackBar('Fields cannot be empty', isError: true);
+                      return;
+                    }
+
+                    if (password != confirmPassword) {
+                      showCustomSnackBar('Passwords do not match', isError: true);
+                      return;
+                    }
+
+                    if (userId.isEmpty || accessToken.isEmpty) {
+                      showCustomSnackBar("Session invalid. Please try again.", isError: true);
+                      return;
+                    }
+                    debugPrint("User ID: ================$userId, Token: $accessToken");
+
+                    // Pass ID and Token to Controller
+                    authController.resetPassword(userId: userId, token: accessToken);
+                  },
+                  title: 'RESET PASSWORD',
+                  fillColor: AppColors.black,
+                  textColor: AppColors.white,
+                );
+              }),
+            ],
+          ),
         ),
       ),
     );

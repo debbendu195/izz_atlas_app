@@ -6,20 +6,26 @@ import 'package:izz_atlas_app/view/components/custom_image/custom_image.dart';
 import 'package:izz_atlas_app/view/components/custom_nav_bar/vendor_navbar.dart';
 import '../../../../core/app_routes/app_routes.dart';
 import '../../../components/custom_text/custom_text.dart';
+import '../../user_part/user_home_screen/user_venue_details_screen.dart';
+import '../vendor_profile_screen/controller/vendor_profile_controller.dart';
+import 'controller/vendor_controller.dart';
 
-class VendorHomeScreen extends StatefulWidget {
-  const VendorHomeScreen({super.key});
 
-  @override
-  _VendorHomeScreenState createState() => _VendorHomeScreenState();
-}
 
-class _VendorHomeScreenState extends State<VendorHomeScreen> {
-  // Variable to track chart visibility
-  bool _isChartVisible = false;
+class VendorHomeScreen extends StatelessWidget {
+  VendorHomeScreen({super.key});
+
+  // Initialize controller
+  final VendorHomeController controller = Get.put(VendorHomeController());
+  final VendorProfileController vendorProfileController = Get.put(VendorProfileController());
 
   @override
   Widget build(BuildContext context) {
+    // Call API once per screen open
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      vendorProfileController.getUserProfile();
+    });
+
     return Scaffold(
       backgroundColor: AppColors.white,
       body: Padding(
@@ -28,6 +34,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Header
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -48,12 +55,19 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
                   ),
                 ],
               ),
-              CustomText(
-                text: "Welcome Back, Alex",
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                bottom: 20,
-              ),
+
+              // Welcome text (Reactive)
+              Obx(() {
+                final name = vendorProfileController.userProfileModel.value.name ?? "";
+                return CustomText(
+                  text: "Welcome Back, $name",
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  bottom: 20,
+                );
+              }),
+
+              // Dashboard cards
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
@@ -61,6 +75,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
                   _buildDashboardCard("Total Earnings", "85,200", "This month"),
                 ],
               ),
+
               CustomText(
                 text: "Quick Actions",
                 fontSize: 18,
@@ -68,6 +83,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
                 top: 16,
                 bottom: 20,
               ),
+
               QuickButton(
                 text: "+ADD VENUE",
                 onTap: () {
@@ -82,22 +98,22 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
                 },
               ),
               SizedBox(height: 20),
-              // Toggle button for Earnings Trend chart
+
+              // Toggle button for Earnings Trend chart (Reactive)
               QuickButton(
                 text: "EARNINGS TREND",
-                onTap: () {
-                  setState(() {
-                    _isChartVisible = !_isChartVisible;
-                  });
-                },
+                onTap: controller.toggleChart,
               ),
-              if (_isChartVisible) _buildEarningsChart(),
+              // ✅ এই Obx ঠিক আছে, কারণ এর ভেতরে controller.isChartVisible.value আছে
+              Obx(() => controller.isChartVisible.value
+                  ? _buildEarningsChart()
+                  : SizedBox()
+              ),
+
               SizedBox(height: 20),
               QuickButton(
                 text: "BOOKINGS TREND",
-                onTap: () {
-                  // Handle Bookings Trend button tap
-                },
+                onTap: () {},
               ),
               Center(child: CustomImage(imageSrc: AppIcons.arrowDown)),
               SizedBox(height: 20),
@@ -117,7 +133,6 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
     );
   }
 
-  // Method to build each dashboard card (Total Bookings, Total Earnings)
   Widget _buildDashboardCard(String title, String value, String subtitle) {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 10, horizontal: 30),
@@ -153,7 +168,6 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
     );
   }
 
-  // Method to build the Earnings Chart (You can replace with actual chart widget)
   Widget _buildEarningsChart() {
     return Container(
       padding: EdgeInsets.all(16),
@@ -170,10 +184,9 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
             color: AppColors.white,
           ),
           SizedBox(height: 10),
-          // Example: Replace with a chart widget (e.g., a bar chart or line chart)
           Container(
             height: 200,
-            color: Colors.amber, // Placeholder for chart background
+            color: Colors.amber,
             child: Center(
               child: CustomText(
                 text: "Chart Goes Here",
@@ -188,11 +201,10 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
     );
   }
 
-  // Method to build Recent Activity section
   Widget _buildRecentActivity() {
     return Container(
       padding: EdgeInsets.all(16),
-      width: MediaQuery.sizeOf(context).width,
+      width: double.infinity,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [Color(0xff111827), Color(0xff1F2937)],
@@ -244,42 +256,3 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
   }
 }
 
-class QuickButton extends StatelessWidget {
-  final String? text;
-  final Function()? onTap;
-  const QuickButton({super.key, this.text, this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Card(
-        elevation: 0,
-        color: AppColors.white,
-        child: Container(
-          width: MediaQuery.sizeOf(context).width,
-          height: 60,
-          decoration: BoxDecoration(
-            color: AppColors.white,
-            borderRadius: BorderRadius.circular(30),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.greyLight,
-                blurRadius: 4,
-                offset: Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Center(
-            child: CustomText(
-              text: text ?? "",
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: AppColors.black,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}

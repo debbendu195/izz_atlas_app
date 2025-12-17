@@ -5,17 +5,25 @@ import 'package:izz_atlas_app/view/components/custom_pin_code/custom_pin_code.da
 import '../../../../core/app_routes/app_routes.dart';
 import '../../../../utils/app_colors/app_colors.dart';
 import '../../../components/custom_button/custom_button.dart';
+import '../../../components/custom_loader/custom_loader.dart';
 import '../../../components/custom_text/custom_text.dart';
+import '../controller/auth_controller.dart';
+
 class OtpScreen extends StatelessWidget {
   const OtpScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final authController = Get.find<AuthController>();
+    // Retrieve argument to determine flow (Sign Up or Forgot Password)
+    final String screenName = Get.arguments is String ? Get.arguments : "";
+
     return Scaffold(
       body: SingleChildScrollView(
         child: Stack(
           children: [
             Container(
+              height: MediaQuery.sizeOf(context).height,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [AppColors.black, Color(0xff111827), Color(0xff1F2937)],
@@ -55,24 +63,35 @@ class OtpScreen extends StatelessWidget {
                             fontWeight: FontWeight.w600,
                             color: AppColors.black,
                             bottom: 10.h,
-                          ), CustomText(
-                            text: "Enter the 4-digit code sent to your\nemail or phone number.",
+                          ),
+                          CustomText(
+                            text: "Enter the code sent to your email.",
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
                             color: AppColors.black_05,
                             maxLines: 2,
                             bottom: 10.h,
                           ),
-        
-                          CustomPinCode(controller: TextEditingController()),
-                          CustomButton(
-                            onTap: () {
-                              Get.toNamed(AppRoutes.loginScreen);
-                            },
-                            title: "VERIFY",
-                            fillColor: AppColors.black,
-                            textColor: AppColors.white,
-                          ),
+
+                          CustomPinCode(controller: authController.otpController.value),
+
+                          SizedBox(height: 20.h),
+
+                          Obx(() {
+                            return authController.otpLoading.value
+                                ? const CustomLoader()
+                                : CustomButton(
+                              onTap: () {
+                                authController.verifyOtp(screenName: screenName);
+                              },
+                              title: "VERIFY",
+                              fillColor: AppColors.black,
+                              textColor: AppColors.white,
+                            );
+                          }),
+
+                          SizedBox(height: 10.h),
+
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -82,9 +101,10 @@ class OtpScreen extends StatelessWidget {
                                 fontWeight: FontWeight.w400,
                                 color: Colors.black12,
                                 bottom: 10.h,
-                              ),  GestureDetector(
-                                onTap: (){
-                                  Get.toNamed(AppRoutes.signUpScreen);
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  // Call resend API if implemented
                                 },
                                 child: CustomText(
                                   text: " Resend",
@@ -96,13 +116,18 @@ class OtpScreen extends StatelessWidget {
                               ),
                             ],
                           ),
-                          CustomText(
-                            top: 20,
-                            text: "Back to Log In",
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                            color: AppColors.black.withValues(alpha: .3),
-                            bottom: 10.h,
+                          GestureDetector(
+                            onTap: (){
+                              Get.offAllNamed(AppRoutes.loginScreen);
+                            },
+                            child: CustomText(
+                              top: 20,
+                              text: "Back to Log In",
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                              color: AppColors.black.withOpacity(0.3),
+                              bottom: 10.h,
+                            ),
                           ),
                         ],
                       ),

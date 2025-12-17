@@ -8,8 +8,14 @@ import '../../../../utils/app_colors/app_colors.dart';
 import '../../../components/custom_button/custom_button.dart';
 import '../../../components/custom_from_card/custom_from_card.dart';
 import '../../../components/custom_text/custom_text.dart';
+import '../controller/auth_controller.dart';
+
 class LoginScreen extends StatelessWidget {
-  const LoginScreen({super.key});
+  LoginScreen({super.key});
+
+  // Controller Injection
+  final AuthController authController = Get.put(AuthController());
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -18,6 +24,7 @@ class LoginScreen extends StatelessWidget {
         child: Stack(
           children: [
             Container(
+              height: MediaQuery.sizeOf(context).height, // Full screen background fix
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [AppColors.black, Color(0xff111827), Color(0xff1F2937)],
@@ -49,86 +56,134 @@ class LoginScreen extends StatelessWidget {
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(12.0),
-                      child: Column(
-                        children: [
-                          CustomText(
-                            text: "SIGN UP / LOG IN",
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.black,
-                            bottom: 10.h,
-                          ),
-                          CustomFormCard(
-                            title: "EMAIL / PHONE NUMBER",
-                            hintText: "Enter your email or phone",
-                            controller: TextEditingController(),
-                          ),
-                          CustomFormCard(
-                            title: "PASSWORD",
-                            hintText: "Enter your password",
-                            controller: TextEditingController(),
-                          ),
-                          CustomButton(
-                            onTap: () {
-                              Get.toNamed(AppRoutes.frameScreen);
-                            },
-                            title: "LOG IN",
-                            fillColor: AppColors.black,
-                            textColor: AppColors.white,
-                          ),
-                          CustomText(
-                            top: 20,
-                            text: "CONTINUE WITH",
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                            color: AppColors.black.withValues(alpha: .3),
-                            bottom: 10.h,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              CustomImage(imageSrc: AppIcons.google,height: 40,width: 40,),
-                              SizedBox(width: 26,),
-                              CustomImage(imageSrc: AppIcons.apple,imageColor: AppColors.black,height: 65,width: 65,),
-                            ],
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              CustomText(
-                                text: "Didn't have an account yet?",
-                                fontSize: 16,
-                                fontWeight: FontWeight.w400,
-                                color: Colors.black12,
-                                bottom: 10.h,
-                              ),  GestureDetector(
-                                onTap: (){
-                                  Get.toNamed(AppRoutes.signUpScreen);
-                                },
-                                child: CustomText(
-                                  text: " Sign Up",
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w400,
-                                  color: Colors.blue,
-                                  bottom: 10.h,
-                                ),
-                              ),
-                            ],
-                          ),
-                          GestureDetector(
-                            onTap: (){
-                              Get.toNamed(AppRoutes.setNewPassword);
-                            },
-                            child: CustomText(
-                              top: 20,
-                              text: "Forgot Password?",
+                      child: Form(
+                        key: formKey, // Form Key set kora holo
+                        child: Column(
+                          children: [
+                            CustomText(
+                              text: "SIGN UP / LOG IN",
                               fontSize: 16,
-                              fontWeight: FontWeight.w400,
-                              color: Colors.blue,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.black,
                               bottom: 10.h,
                             ),
-                          ),
-                        ],
+
+                            // Email Field
+                            CustomFormCard(
+                              title: "EMAIL",
+                              hintText: "Enter your email",
+                              // Controller connect kora holo
+                              controller: authController.loginEmailController.value,
+                              // Validation add kora holo
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return "Field cannot be empty";
+                                }
+                                return null;
+                              },
+                            ),
+
+                            // Password Field
+                            CustomFormCard(
+                              title: "PASSWORD",
+                              hintText: "Enter your password",
+                              // Password field bole 'isPassword: true' hote pare (tomar widget onujayi)
+                              isPassword: true,
+                              // Controller connect kora holo
+                              controller: authController.loginPasswordController.value,
+                              // Validation
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return "Password cannot be empty";
+                                }
+                                return null;
+                              },
+                            ),
+
+                            SizedBox(height: 20.h),
+
+                            // Login Button with Obx for Loading state
+                            Obx(() {
+                              return authController.loginLoading.value
+                                  ? const Center(child: CircularProgressIndicator()) // Or use CustomLoader()
+                                  : CustomButton(
+                                onTap: () {
+                                  // Form validation check
+                                  if (formKey.currentState!.validate()) {
+                                    authController.loginUser();
+                                  }
+                                },
+                                title: "LOG IN",
+                                fillColor: AppColors.black,
+                                textColor: AppColors.white,
+                              );
+                            }),
+
+                            CustomText(
+                              top: 20,
+                              text: "CONTINUE WITH",
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                              color: AppColors.black.withOpacity(0.3), // .withValues replacement
+                              bottom: 10.h,
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                CustomImage(
+                                  imageSrc: AppIcons.google,
+                                  height: 40,
+                                  width: 40,
+                                ),
+                                SizedBox(width: 26),
+                                CustomImage(
+                                  imageSrc: AppIcons.apple,
+                                  imageColor: AppColors.black,
+                                  height: 65,
+                                  width: 65,
+                                ),
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                CustomText(
+                                  text: "Didn't have an account yet?",
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w400,
+                                  color: Colors.black12,
+                                  bottom: 10.h,
+                                ),
+                                GestureDetector(
+                                  onTap: () {
+                                    Get.toNamed(AppRoutes.frameScreen);
+                                  },
+                                  child: CustomText(
+                                    text: " Sign Up",
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w400,
+                                    color: Colors.blue,
+                                    bottom: 10.h,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                // Logic ta check kore nio, eta forgot password e jabe
+                                Get.toNamed(AppRoutes.forgotScreen);
+                              },
+                              child: CustomText(
+                                top: 20,
+                                text: "Forgot Password?",
+                                fontSize: 16,
+                                fontWeight: FontWeight.w400,
+                                color: Colors.blue,
+                                bottom: 10.h,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
