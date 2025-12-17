@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:get/get.dart';
 
@@ -11,7 +10,7 @@ import '../model/all_spoets_model.dart';
 class UserAllSportsController extends GetxController{
 
   var sportsVenueGroups = <SportsVenueGroup>[].obs;
-  var isLoading = true.obs;
+  var isLoading = false.obs;
   var isLoadMore = false.obs;
   int currentPage = 1;
   int totalPage = 1;

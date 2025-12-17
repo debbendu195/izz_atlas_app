@@ -21,5 +21,6 @@ class ApiUrl {
 
   /// ==================== Vendor Profile ===================
   static const String createVenue = "/venues";
+  static const String vendorMyVenues = "/venues/my";
 
 }

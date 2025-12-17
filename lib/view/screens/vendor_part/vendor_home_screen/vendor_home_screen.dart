@@ -104,7 +104,6 @@ class VendorHomeScreen extends StatelessWidget {
                 text: "EARNINGS TREND",
                 onTap: controller.toggleChart,
               ),
-              // ✅ এই Obx ঠিক আছে, কারণ এর ভেতরে controller.isChartVisible.value আছে
               Obx(() => controller.isChartVisible.value
                   ? _buildEarningsChart()
                   : SizedBox()

@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
+import 'package:izz_atlas_app/utils/app_colors/app_colors.dart';
 import 'package:izz_atlas_app/utils/app_icons/app_icons.dart';
-import 'package:izz_atlas_app/view/components/custom_image/custom_image.dart';
-import 'package:izz_atlas_app/view/screens/vendor_part/vendor_home_screen/widgets/custom_booking_card.dart';
+import 'package:izz_atlas_app/view/components/custom_button/custom_button.dart';
+import 'package:izz_atlas_app/view/components/custom_royel_appbar/custom_royel_appbar.dart';
+import 'package:izz_atlas_app/view/components/custom_text/custom_text.dart';
 import 'package:izz_atlas_app/view/screens/vendor_part/vendor_home_screen/widgets/custom_my_venues_main_card.dart';
 import '../../../../core/app_routes/app_routes.dart';
-import '../../../../utils/app_colors/app_colors.dart';
-import '../../../components/custom_button/custom_button.dart';
-import '../../../components/custom_royel_appbar/custom_royel_appbar.dart';
-import '../../../components/custom_text/custom_text.dart';
+import 'controller/vendor_my_venue_controller.dart';
 
 class VendorMyVenuesScreen extends StatelessWidget {
-  const VendorMyVenuesScreen({super.key});
+  VendorMyVenuesScreen({super.key});
+
+  final VendorMyVenueController controller = Get.put(VendorMyVenueController());
 
   @override
   Widget build(BuildContext context) {
@@ -52,9 +52,40 @@ class VendorMyVenuesScreen extends StatelessWidget {
               ],
             ),
             SizedBox(height: 20,),
-            CustomMyVenuesMainCard(),
-            CustomMyVenuesMainCard(title: "Urban Basketball Court",iconData: AppIcons.venues2,subTitle: "Kuala Lumpur, Malaysia",buttonText: "Inactive",),
-            CustomMyVenuesMainCard(title: "Elite Badminton Hall",iconData: AppIcons.venues3,subTitle: "Chittagong, Bangladesh",buttonText: "Active",),
+
+            Expanded(
+              child: Obx(() {
+                if (controller.isLoading.value) {
+                  return const Center(child: CircularProgressIndicator(color: AppColors.black));
+                }
+
+                if (controller.myVenueList.isEmpty) {
+                  return Center(
+                    child: CustomText(
+                      text: "No Venues Found",
+                      color: AppColors.greyLight,
+                    ),
+                  );
+                }
+
+                return ListView.builder(
+                  itemCount: controller.myVenueList.length,
+                  padding: const EdgeInsets.only(bottom: 20),
+                  itemBuilder: (context, index) {
+                    final venue = controller.myVenueList[index];
+
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12.0),
+                      child: CustomMyVenuesMainCard(
+                        title: venue.venueName,
+                        subTitle: venue.location,
+                        buttonText: venue.venueStatus ? "Active" : "Inactive",
+                      ),
+                    );
+                  },
+                );
+              }),
+            ),
           ],
         ),
       ),
