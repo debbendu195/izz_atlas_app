@@ -61,11 +61,13 @@ class Meta {
 
 class SportsVenueGroup {
   final String sportsType;
+  final String? sportsImage;
   final List<Venue> venues;
   final int count;
 
   SportsVenueGroup({
     required this.sportsType,
+    this.sportsImage,
     required this.venues,
     required this.count,
   });
@@ -73,6 +75,7 @@ class SportsVenueGroup {
   factory SportsVenueGroup.fromJson(Map<String, dynamic> json) {
     return SportsVenueGroup(
       sportsType: json['sportsType'],
+      sportsImage: json['sportsImage'],
       venues: (json['venues'] as List)
           .map((e) => Venue.fromJson(e))
           .toList(),

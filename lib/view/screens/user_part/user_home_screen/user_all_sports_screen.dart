@@ -14,23 +14,14 @@ import '../../../components/custom_text_field/custom_text_field.dart';
 
 class UserAllSportsScreen extends StatelessWidget {
   UserAllSportsScreen({super.key});
-  final UserAllSportsController userAllSportsController = Get.put(UserAllSportsController());
 
-  final List<String> sportsCategories = [
-    "Football",
-    "Cricket",
-    "Basketball",
-    "Badminton",
-    "Hand Ball",
-    "Game Ball",
-    "Others"
-  ];
+  final UserAllSportsController userAllSportsController = Get.put(UserAllSportsController());
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.white,
-      appBar: CustomRoyelAppbar(leftIcon: true, titleName: "All Sports",),
+      appBar: CustomRoyelAppbar(leftIcon: true, titleName: "All Sports"),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Column(
@@ -69,45 +60,64 @@ class UserAllSportsScreen extends StatelessWidget {
                 ),
               ],
             ),
+
+            // GridView অংশটি Obx দিয়ে র‍্যাপ করা হয়েছে
             Expanded(
-              child: GridView.builder(
-                padding: EdgeInsets.symmetric(vertical: 10),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 1,
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
-                ),
-                itemCount: sportsCategories.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return GestureDetector(
-                    onTap: () {
-                      debugPrint("${sportsCategories[index].toUpperCase()}");
-                      Get.toNamed(AppRoutes.userSearchVenueScreen, arguments: sportsCategories[index].toUpperCase());
-                    },
-                    child: Stack(
-                      children: [
-                        CustomNetworkImage(
-                          imageUrl: AppConstants.banner,
-                          height: 190.h,
-                          width: MediaQuery.sizeOf(context).width / 2.2,
-                          borderRadius: BorderRadius.all(Radius.circular(13)),
-                        ),
-                        Positioned(
-                          bottom: 40,
-                          left: 10,
-                          child: CustomText(
-                            text: sportsCategories[index].toUpperCase(),
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.white,
+              child: Obx(() {
+                if (userAllSportsController.isLoading.value) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                if (userAllSportsController.sportsVenueGroups.isEmpty) {
+                  return const Center(child: Text("No sports found"));
+                }
+
+                return GridView.builder(
+                  padding: EdgeInsets.symmetric(vertical: 10),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 1,
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
+                  ),
+                  itemCount: userAllSportsController.sportsVenueGroups.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    final sportGroup = userAllSportsController.sportsVenueGroups[index];
+
+                    return GestureDetector(
+                      onTap: () {
+                        debugPrint("${sportGroup.sportsType.toUpperCase()}");
+                        Get.toNamed(
+                            AppRoutes.userSearchVenueScreen,
+                            arguments: sportGroup.sportsType.toUpperCase()
+                        );
+                      },
+                      child: Stack(
+                        children: [
+                          CustomNetworkImage(
+                            imageUrl: (sportGroup.sportsImage != null && sportGroup.sportsImage!.isNotEmpty)
+                                ? sportGroup.sportsImage!
+                                : AppConstants.banner,
+                            height: 190.h,
+                            width: MediaQuery.sizeOf(context).width / 2.2,
+                            borderRadius: BorderRadius.all(Radius.circular(13)),
                           ),
-                        )
-                      ],
-                    ),
-                  );
-                },
-              ),
+                          Positioned(
+                            bottom: 40,
+                            left: 10,
+                            child: CustomText(
+                              text: sportGroup.sportsType.toUpperCase(),
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.white,
+                            ),
+                          )
+                        ],
+                      ),
+                    );
+                  },
+                );
+              }),
             ),
           ],
         ),

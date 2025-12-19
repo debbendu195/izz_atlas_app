@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 import '../../../../../service/api_client.dart';
 import '../../../../../service/api_url.dart';
 import '../../../../../utils/ToastMsg/toast_message.dart';
-import '../model/all_spoets_model.dart';
+import '../model/all_sports_model.dart';
 
 class UserAllSportsController extends GetxController{
 
@@ -15,6 +15,11 @@ class UserAllSportsController extends GetxController{
   int currentPage = 1;
   int totalPage = 1;
 
+  @override
+  void onInit() {
+    super.onInit();
+    allSports();
+  }
 
   Future<void> allSports({bool loadMore = false}) async {
     if (isLoading.value || isLoadMore.value) return;
@@ -31,6 +36,7 @@ class UserAllSportsController extends GetxController{
       }
 
       final response = await ApiClient.getData(ApiUrl.allSports(page: currentPage.toString()));
+
 
       final Map<String, dynamic> jsonResponse =
       response.body is String

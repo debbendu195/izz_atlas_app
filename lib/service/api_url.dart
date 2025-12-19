@@ -1,6 +1,6 @@
 class ApiUrl {
   /// ================= BASE URL =================
-  static const String baseUrl = "https://suggestion-excuse-rights-meyer.trycloudflare.com/api/v1";
+  static const String baseUrl = "https://inc-product-solomon-applies.trycloudflare.com/api/v1";
   static const String imageUrl = "";
 
   /// ================= AUTHENTICATION =================

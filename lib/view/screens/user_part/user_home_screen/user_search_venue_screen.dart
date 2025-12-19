@@ -10,17 +10,21 @@ import 'package:izz_atlas_app/view/screens/user_part/user_home_screen/widgets/cu
 import '../../../../core/app_routes/app_routes.dart';
 import '../../../../utils/app_colors/app_colors.dart';
 import '../../../components/custom_text_field/custom_text_field.dart';
+import 'model/all_sports_model.dart';
 
 class UserSearchVenueScreen extends StatelessWidget {
   UserSearchVenueScreen({super.key});
 
-  final UserAllSportsController userAllSportsController = Get.put(UserAllSportsController());
-  final String sportsType = Get.arguments;
+  final UserAllSportsController userAllSportsController = Get.find<UserAllSportsController>();
+  final String selectedSportsType = Get.arguments ?? "";
 
   @override
   Widget build(BuildContext context) {
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      userAllSportsController.allSports();
+      if(userAllSportsController.sportsVenueGroups.isEmpty){
+        userAllSportsController.allSports();
+      }
     });
 
     return Scaffold(
@@ -43,7 +47,7 @@ class UserSearchVenueScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 CustomText(
-                  text: "RESULTS FOR 'VENUE'",
+                  text: "RESULTS FOR '${selectedSportsType.isNotEmpty ? selectedSportsType : 'VENUE'}'",
                   fontSize: 18,
                   fontWeight: FontWeight.w900,
                 ),
@@ -65,74 +69,57 @@ class UserSearchVenueScreen extends StatelessWidget {
             ),
             SizedBox(height: 10),
 
-            // --- Scrollable List Section with Pagination ---
+            // --- Scrollable List Section ---
             Expanded(
               child: Obx(() {
-                // 1. Initial Loading State
-                if (userAllSportsController.isLoading.value && userAllSportsController.sportsVenueGroups.isEmpty) {
+                // 1. Loading Check
+                if (userAllSportsController.isLoading.value) {
                   return const Center(
                     child: CircularProgressIndicator(color: AppColors.black),
                   );
                 }
 
-                // 2. Empty Data State
-                if (userAllSportsController.sportsVenueGroups.isEmpty && !userAllSportsController.isLoading.value) {
+                SportsVenueGroup? targetGroup;
+                try {
+                  targetGroup = userAllSportsController.sportsVenueGroups.firstWhere(
+                        (group) => group.sportsType.toUpperCase() == selectedSportsType.toUpperCase(),
+                  );
+                } catch (e) {
+                  targetGroup = null;
+                }
+
+                // 3. Empty State Logic
+                if (targetGroup == null || targetGroup.venues.isEmpty) {
                   return Center(
                     child: CustomText(
-                      text: "No venues found",
+                      text: "No venues found for $selectedSportsType",
                       color: AppColors.greyLight,
                     ),
                   );
                 }
 
-                // 3. List Data with Pagination
-                return NotificationListener<ScrollNotification>(
-                  onNotification: (scrollInfo) {
-                    if (!userAllSportsController.isLoadMore.value &&
-                        scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent &&
-                        userAllSportsController.currentPage < userAllSportsController.totalPage) {
+                // 4. List Data Display (Specific Venues only)
+                final venuesList = targetGroup.venues;
 
-                      userAllSportsController.allSports(loadMore: true);
-                    }
-                    return true;
+                return ListView.builder(
+                  padding: EdgeInsets.only(bottom: 20),
+                  itemCount: venuesList.length,
+                  itemBuilder: (context, index) {
+                    final venue = venuesList[index];
+
+                    return CustomResultsVenueContainer(
+                      venueName: venue.venueName,
+                      sportName: venue.sportsType,
+                      location: venue.location,
+                      price: "RM ${venue.pricePerHour}/hr",
+                      status: venue.venueStatus ? "Active" : "Booked",
+                      rating: "0.0",
+                      imageUrl: venue.venueImage,
+                      onTap: () {
+                        Get.toNamed(AppRoutes.userVenueDetailsScreen, arguments: venue);
+                      },
+                    );
                   },
-                  child: ListView.builder(
-                    padding: EdgeInsets.only(bottom: 20),
-                    itemCount: userAllSportsController.sportsVenueGroups.length +
-                        (userAllSportsController.isLoadMore.value ? 1 : 0),
-                    itemBuilder: (context, index) {
-
-                      // Bottom Loader Logic
-                      if (index >= userAllSportsController.sportsVenueGroups.length) {
-                        return const Center(
-                          child: Padding(
-                            padding: EdgeInsets.all(16.0),
-                            child: CircularProgressIndicator(color: AppColors.black),
-                          ),
-                        );
-                      }
-
-                      // Data Binding
-                      final group = userAllSportsController.sportsVenueGroups[index];
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: group.venues.map((venue) {
-                          return CustomResultsVenueContainer(
-                            venueName: venue.venueName,
-                            sportName: venue.sportsType,
-                            location: venue.location,
-                            price: "RM ${venue.pricePerHour}/hr",
-                            status: venue.venueStatus ? "Active" : "Booked",
-                            rating: "4.5",
-                            imageUrl: venue.venueImage,
-                            onTap: () {
-                              Get.toNamed(AppRoutes.userVenueDetailsScreen);
-                            },
-                          );
-                        }).toList(),
-                      );
-                    },
-                  ),
                 );
               }),
             ),
