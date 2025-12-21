@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:izz_atlas_app/utils/app_colors/app_colors.dart';
 import 'package:izz_atlas_app/view/components/custom_royel_appbar/custom_royel_appbar.dart';
 import 'package:izz_atlas_app/view/screens/user_part/user_home_screen/user_home_controller/user_all_sports_controller.dart';
+import 'package:izz_atlas_app/view/screens/user_part/user_home_screen/user_home_controller/user_details_controller.dart';
 import '../../../../core/app_routes/app_routes.dart';
 import '../../../../utils/app_const/app_const.dart';
 import '../../../../utils/app_icons/app_icons.dart';
@@ -16,6 +17,8 @@ class UserAllSportsScreen extends StatelessWidget {
   UserAllSportsScreen({super.key});
 
   final UserAllSportsController userAllSportsController = Get.put(UserAllSportsController());
+  final controller = Get.put(UserVenueDetailsController());
+
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +64,6 @@ class UserAllSportsScreen extends StatelessWidget {
               ],
             ),
 
-            // GridView অংশটি Obx দিয়ে র‍্যাপ করা হয়েছে
             Expanded(
               child: Obx(() {
                 if (userAllSportsController.isLoading.value) {
@@ -87,6 +89,7 @@ class UserAllSportsScreen extends StatelessWidget {
                     return GestureDetector(
                       onTap: () {
                         debugPrint("${sportGroup.sportsType.toUpperCase()}");
+                        // controller.getVenueDetails(sportGroup.venues.);
                         Get.toNamed(
                             AppRoutes.userSearchVenueScreen,
                             arguments: sportGroup.sportsType.toUpperCase()

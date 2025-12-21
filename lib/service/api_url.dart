@@ -1,6 +1,6 @@
 class ApiUrl {
   /// ================= BASE URL =================
-  static const String baseUrl = "https://inc-product-solomon-applies.trycloudflare.com/api/v1";
+  static const String baseUrl = "https://consecutive-collaborative-earned-inherited.trycloudflare.com/api/v1";
   static const String imageUrl = "";
 
   /// ================= AUTHENTICATION =================
@@ -22,5 +22,6 @@ class ApiUrl {
   /// ==================== Vendor Profile ===================
   static const String createVenue = "/venues";
   static const String vendorMyVenues = "/venues/my";
+  static String userVenueDetails({required String id}) => "/venues/$id";
 
 }

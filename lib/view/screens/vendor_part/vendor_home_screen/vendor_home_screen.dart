@@ -6,7 +6,6 @@ import 'package:izz_atlas_app/view/components/custom_image/custom_image.dart';
 import 'package:izz_atlas_app/view/components/custom_nav_bar/vendor_navbar.dart';
 import '../../../../core/app_routes/app_routes.dart';
 import '../../../components/custom_text/custom_text.dart';
-import '../../user_part/user_home_screen/user_venue_details_screen.dart';
 import '../vendor_profile_screen/controller/vendor_profile_controller.dart';
 import 'controller/vendor_controller.dart';
 
@@ -108,11 +107,13 @@ class VendorHomeScreen extends StatelessWidget {
                   ? _buildEarningsChart()
                   : SizedBox()
               ),
-
+              Center(child: CustomImage(imageSrc: AppIcons.arrowDown)),
               SizedBox(height: 20),
               QuickButton(
                 text: "BOOKINGS TREND",
-                onTap: () {},
+                onTap: () {
+                  Get.toNamed(AppRoutes.editVenueScreen);
+                },
               ),
               Center(child: CustomImage(imageSrc: AppIcons.arrowDown)),
               SizedBox(height: 20),
@@ -255,3 +256,42 @@ class VendorHomeScreen extends StatelessWidget {
   }
 }
 
+class QuickButton extends StatelessWidget {
+  final String? text;
+  final Function()? onTap;
+  const QuickButton({super.key, this.text, this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Card(
+        elevation: 0,
+        color: AppColors.white,
+        child: Container(
+          width: MediaQuery.sizeOf(context).width,
+          height: 60,
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.circular(30),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.greyLight,
+                blurRadius: 4,
+                offset: Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Center(
+            child: CustomText(
+              text: text ?? "",
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              color: AppColors.black,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

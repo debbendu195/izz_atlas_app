@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:izz_atlas_app/core/app_routes/app_routes.dart';
 import 'package:izz_atlas_app/utils/app_icons/app_icons.dart';
 import 'package:izz_atlas_app/view/components/custom_image/custom_image.dart';
 import 'package:izz_atlas_app/view/components/custom_royel_appbar/custom_royel_appbar.dart';
@@ -7,7 +8,6 @@ import 'package:izz_atlas_app/view/components/custom_text/custom_text.dart';
 import 'package:izz_atlas_app/view/screens/user_part/user_home_screen/user_home_controller/user_all_sports_controller.dart';
 import 'package:izz_atlas_app/view/screens/user_part/user_home_screen/widgets/custom_results_venue_container.dart';
 
-import '../../../../core/app_routes/app_routes.dart';
 import '../../../../utils/app_colors/app_colors.dart';
 import '../../../components/custom_text_field/custom_text_field.dart';
 import 'model/all_sports_model.dart';
@@ -34,7 +34,6 @@ class UserSearchVenueScreen extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: Column(
           children: [
-            // --- Fixed Header Section (Search & Filter) ---
             CustomTextField(
               fillColor: AppColors.white,
               fieldBorderColor: AppColors.greyLight,
@@ -69,7 +68,6 @@ class UserSearchVenueScreen extends StatelessWidget {
             ),
             SizedBox(height: 10),
 
-            // --- Scrollable List Section ---
             Expanded(
               child: Obx(() {
                 // 1. Loading Check
@@ -79,6 +77,7 @@ class UserSearchVenueScreen extends StatelessWidget {
                   );
                 }
 
+                // 2. Find Specific Group Logic
                 SportsVenueGroup? targetGroup;
                 try {
                   targetGroup = userAllSportsController.sportsVenueGroups.firstWhere(
@@ -98,7 +97,6 @@ class UserSearchVenueScreen extends StatelessWidget {
                   );
                 }
 
-                // 4. List Data Display (Specific Venues only)
                 final venuesList = targetGroup.venues;
 
                 return ListView.builder(
@@ -113,10 +111,13 @@ class UserSearchVenueScreen extends StatelessWidget {
                       location: venue.location,
                       price: "RM ${venue.pricePerHour}/hr",
                       status: venue.venueStatus ? "Active" : "Booked",
-                      rating: "0.0",
+                      rating: "5.0",
                       imageUrl: venue.venueImage,
                       onTap: () {
-                        Get.toNamed(AppRoutes.userVenueDetailsScreen, arguments: venue);
+                        Get.toNamed(
+                            AppRoutes.userVenueDetailsScreen,
+                            arguments: venue.id
+                        );
                       },
                     );
                   },

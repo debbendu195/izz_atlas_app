@@ -30,6 +30,7 @@ import '../../view/screens/user_part/user_profile_screen/user_profile_screen.dar
 import '../../view/screens/user_part/user_profile_screen/user_terms_screen.dart';
 import '../../view/screens/user_part/user_social_screen/user_social_screen.dart';
 import '../../view/screens/vendor_part/vendor_home_screen/add_venue_screen.dart';
+import '../../view/screens/vendor_part/vendor_home_screen/edit_venue_screen.dart';
 import '../../view/screens/vendor_part/vendor_home_screen/vendor_booking_details_screen.dart';
 import '../../view/screens/vendor_part/vendor_home_screen/vendor_booking_request_screen.dart';
 import '../../view/screens/vendor_part/vendor_home_screen/vendor_home_screen.dart';
@@ -95,6 +96,7 @@ class AppRoutes {
   static const String bookYourSlotScreen = "/BookYourSlotScreen";
   static const String userMyBookingsScreen = "/UserMyBookingsScreen";
   static const String userAllSportsScreen = "/UserAllSportsScreen";
+  static const String editVenueScreen = "/EditVenueScreen";
 
 
   static List<GetPage> routes = [
@@ -147,6 +149,7 @@ class AppRoutes {
     GetPage(name: bookYourSlotScreen, page: () => BookYourSlotScreen()),
     GetPage(name: userMyBookingsScreen, page: () => UserMyBookingsScreen()),
     GetPage(name: userAllSportsScreen, page: () => UserAllSportsScreen()),
+    GetPage(name: editVenueScreen, page: () => EditVenueScreen()),
 
 
   ];

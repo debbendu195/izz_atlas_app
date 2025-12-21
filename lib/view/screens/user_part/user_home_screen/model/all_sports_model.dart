@@ -144,6 +144,26 @@ class Venue {
   }
 }
 
+class UserVenueDetailsModel {
+  final bool success;
+  final String message;
+  final Venue data;
+
+  UserVenueDetailsModel({
+    required this.success,
+    required this.message,
+    required this.data,
+  });
+
+  factory UserVenueDetailsModel.fromJson(Map<String, dynamic> json) {
+    return UserVenueDetailsModel(
+      success: json['success'],
+      message: json['message'],
+      data: Venue.fromJson(json['data']),
+    );
+  }
+}
+
 class Amenity {
   final String amenityName;
 

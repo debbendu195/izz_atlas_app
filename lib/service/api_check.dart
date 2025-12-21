@@ -12,7 +12,6 @@ class ApiChecker {
       await SharePrefsHelper.remove(AppConstants.bearerToken);
       Get.offAllNamed(AppRoutes.loginScreen);
     } else {
-      // Safely get error message or fallback
       String errorMessage = response.body != null && response.body['error'] != null
           ? response.body['error'].toString()
           : 'Something went wrong';
