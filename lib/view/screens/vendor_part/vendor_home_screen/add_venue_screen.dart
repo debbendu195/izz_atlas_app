@@ -65,7 +65,6 @@ class AddVenueScreen extends StatelessWidget {
                       controller: controller.venueNameController,
                     ),
 
-                    // ========== FIX: Sports Type Dropdown ==========
                     CustomText(
                       text: "Sports Type",
                       fontSize: 14,
@@ -99,7 +98,6 @@ class AddVenueScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    // ===============================================
 
                     Row(
                       children: [
@@ -122,6 +120,14 @@ class AddVenueScreen extends StatelessWidget {
                         ),
                       ],
                     ),
+
+                    CustomFormCard(
+                      title: "Court Numbers",
+                      hintText: "10",
+                      keyboardType: TextInputType.number,
+                      controller: controller.courtNumberController,
+                    ),
+
                     CustomFormCard(
                       title: "Location",
                       hintText: "Dhanmondi, Dhaka",
@@ -130,7 +136,7 @@ class AddVenueScreen extends StatelessWidget {
 
                     const SizedBox(height: 16),
 
-                    // ============= Schedule Section (Same as before) =============
+                    // ============= Schedule Section =============
                     CustomText(
                       text: "Schedule",
                       fontSize: 14,
@@ -138,9 +144,6 @@ class AddVenueScreen extends StatelessWidget {
                       bottom: 8,
                     ),
 
-                    // ... (তোমার আগের Schedule UI কোড এখানে থাকবে) ...
-                    // আমি সংক্ষিপ্ত রাখার জন্য শুধু লজিক পার্টটা স্কিপ করছি,
-                    // আগের মেসেজের Schedule UI কোডটি এখানে হুবহু ব্যবহার করবে।
                     Column(
                       children: List.generate(controller.scheduleList.length, (dayIndex) {
                         var dayBlock = controller.scheduleList[dayIndex];
@@ -165,7 +168,6 @@ class AddVenueScreen extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                // Day Row
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
@@ -208,7 +210,6 @@ class AddVenueScreen extends StatelessWidget {
                                 Divider(height: 1, color: Colors.grey.shade200),
                                 const SizedBox(height: 12),
 
-                                // Slots Loop
                                 ...List.generate(slots.length, (slotIndex) {
                                   return Padding(
                                     padding: const EdgeInsets.only(bottom: 12.0),
@@ -272,27 +273,156 @@ class AddVenueScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-
-                    // ... (বাকি UI কোড আগের মতই) ...
-                    // Amenities, Description, Save Button etc.
                     const SizedBox(height: 16),
-                    CustomText(text: "Amenities", fontSize: 16, fontWeight: FontWeight.w700),
+
+                    // ============= Amenities Section (UPDATED) =============
+                    Row(
+                      children: [
+                        CustomText(
+                          text: "Amenities",
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                        ),
+                        const Spacer(),
+                        InkWell(
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              barrierDismissible: false,
+                              builder: (context) {
+                                return Dialog(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(20),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        /// Title
+                                        CustomText(
+                                          text: "AMENITIES TYPE",
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                        const SizedBox(height: 16),
+
+                                        /// Text Field
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFF1F2937),
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                          child: TextField(
+                                            controller: controller.newAmenityController, // ✅ Controller Added
+                                            style: TextStyle(color: Colors.white),
+                                            decoration: InputDecoration(
+                                              hintText: "Amenities name",
+                                              hintStyle: TextStyle(color: Colors.white54),
+                                              border: InputBorder.none,
+                                            ),
+                                          ),
+                                        ),
+
+                                        const SizedBox(height: 24),
+
+                                        /// Buttons
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: InkWell(
+                                                onTap: () {
+                                                  Navigator.pop(context);
+                                                },
+                                                child: Container(
+                                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.grey,
+                                                    borderRadius: BorderRadius.circular(30),
+                                                  ),
+                                                  alignment: Alignment.center,
+                                                  child: CustomText(
+                                                    text: "Cancel",
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 12),
+                                            Expanded(
+                                              child: InkWell(
+                                                onTap: () {
+                                                  // ✅ Save logic
+                                                  controller.addNewAmenity();
+                                                },
+                                                child: Container(
+                                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                                  decoration: BoxDecoration(
+                                                    color: const Color(0xFF374151),
+                                                    borderRadius: BorderRadius.circular(30),
+                                                  ),
+                                                  alignment: Alignment.center,
+                                                  child: CustomText(
+                                                    text: "Save",
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.grey[200],
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              children: const [
+                                Icon(Icons.add, color: Colors.black),
+                                SizedBox(width: 4),
+                                CustomText(
+                                  text: "Add New",
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                     const SizedBox(height: 16),
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Row(
                         children: [
-                          _amenitySelectableItem(controller, AppIcons.wifi, "Wi-Fi"),
-                          SizedBox(width: 10),
-                          _amenitySelectableItem(controller, AppIcons.wifi2, "Flood Lights"),
-                          SizedBox(width: 10),
-                          _amenitySelectableItem(controller, AppIcons.wifi3, "Changing Room"),
-                          SizedBox(width: 10),
-                          _amenitySelectableItem(controller, AppIcons.wifi3, "Parking"),
+                          // ✅ Custom Amenities
+                          Obx(() => Row(
+                            children: controller.customAmenities.map((amenity) {
+                              return Padding(
+                                padding: const EdgeInsets.only(left: 10),
+                                child: _amenitySelectableItem(controller, amenity),
+                              );
+                            }).toList(),
+                          )),
                         ],
                       ),
                     ),
-
+                    const SizedBox(height: 20),
                     CustomFormCard(
                       title: "Description",
                       hintText: "Type description here...",
@@ -317,7 +447,7 @@ class AddVenueScreen extends StatelessWidget {
                             textColor: AppColors.white,
                             title: "Save",
                           ),
-                        )
+                        ),
                       ],
                     ),
                     const SizedBox(height: 50),
@@ -337,8 +467,8 @@ class AddVenueScreen extends StatelessWidget {
     );
   }
 
-  // Helper Widgets (Same as before)
-  Widget _amenitySelectableItem(AddVenueController controller, String icon, String text) {
+  // Helper Widgets
+  Widget _amenitySelectableItem(AddVenueController controller, String text) {
     return Obx(() {
       bool isSelected = controller.selectedAmenities.contains(text);
       return GestureDetector(
@@ -353,17 +483,12 @@ class AddVenueScreen extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: isSelected ? Colors.transparent : Colors.grey),
           ),
-          child: Row(
-            children: [
-              CustomImage(imageSrc: icon, imageColor: isSelected ? Colors.white : Colors.black),
-              CustomText(
-                  left: 8,
-                  text: text,
-                  fontSize: 14,
-                  color: isSelected ? AppColors.white : Colors.black,
-                  fontWeight: FontWeight.w600
-              ),
-            ],
+          child: CustomText(
+              left: 8,
+              text: text,
+              fontSize: 14,
+              color: isSelected ? AppColors.white : Colors.black,
+              fontWeight: FontWeight.w600
           ),
         ),
       );

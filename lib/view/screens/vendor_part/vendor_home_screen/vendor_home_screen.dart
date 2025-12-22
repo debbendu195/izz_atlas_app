@@ -112,7 +112,7 @@ class VendorHomeScreen extends StatelessWidget {
               QuickButton(
                 text: "BOOKINGS TREND",
                 onTap: () {
-                  Get.toNamed(AppRoutes.editVenueScreen);
+                  Get.toNamed(AppRoutes.venueAvailabilityScreen);
                 },
               ),
               Center(child: CustomImage(imageSrc: AppIcons.arrowDown)),

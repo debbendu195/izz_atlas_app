@@ -1,4 +1,3 @@
-/// ================= RESPONSE =================
 class VenueDetailsResponse {
   final bool success;
   final String message;
@@ -19,25 +18,20 @@ class VenueDetailsResponse {
   }
 }
 
-/// ================= VENUE =================
 class VenueDetails {
   final String id;
   final String venueName;
   final String sportsType;
-  final int pricePerHour;
+  final double pricePerHour;
   final int capacity;
+  final int courtNumbers;
   final String location;
   final bool venueStatus;
   final String description;
   final String venueImage;
   final List<Amenity> amenities;
-  final List<int> courtNumbers;
-  final String everyServiceStatus;
   final String venueRating;
   final int venueReviewCount;
-  final String createdAt;
-  final String updatedAt;
-  final String vendorId;
   final List<VenueAvailability> venueAvailabilities;
 
   VenueDetails({
@@ -46,124 +40,88 @@ class VenueDetails {
     required this.sportsType,
     required this.pricePerHour,
     required this.capacity,
+    required this.courtNumbers,
     required this.location,
     required this.venueStatus,
     required this.description,
     required this.venueImage,
     required this.amenities,
-    required this.courtNumbers,
-    required this.everyServiceStatus,
     required this.venueRating,
     required this.venueReviewCount,
-    required this.createdAt,
-    required this.updatedAt,
-    required this.vendorId,
     required this.venueAvailabilities,
   });
 
   factory VenueDetails.fromJson(Map<String, dynamic> json) {
+
+    // ✅ Handle courtNumbers: API can send List [1,2,3] OR int 3
+    int parsedCourtNumbers = 1;
+    if (json['courtNumbers'] is List) {
+      parsedCourtNumbers = (json['courtNumbers'] as List).length;
+    } else {
+      parsedCourtNumbers = int.tryParse(json['courtNumbers']?.toString() ?? '1') ?? 1;
+    }
+
     return VenueDetails(
-      id: json['id'] ?? '',
-      venueName: json['venueName'] ?? '',
-      sportsType: json['sportsType'] ?? '',
-      pricePerHour: json['pricePerHour'] ?? 0,
-      capacity: json['capacity'] ?? 0,
-      location: json['location'] ?? '',
+      id: json['id']?.toString() ?? '',
+      venueName: json['venueName']?.toString() ?? '',
+      sportsType: json['sportsType']?.toString() ?? '',
+
+      pricePerHour: double.tryParse(json['pricePerHour']?.toString() ?? '0.0') ?? 0.0,
+      capacity: int.tryParse(json['capacity']?.toString() ?? '0') ?? 0,
+
+      // ✅ Using parsed logic
+      courtNumbers: parsedCourtNumbers,
+
+      location: json['location']?.toString() ?? '',
       venueStatus: json['venueStatus'] ?? false,
-      description: json['description'] ?? '',
-      venueImage: json['venueImage'] ?? '',
+      description: json['description']?.toString() ?? '',
+      venueImage: json['venueImage']?.toString() ?? '',
+
       amenities: json['amenities'] == null
           ? []
-          : List<Amenity>.from(
-        json['amenities'].map((x) => Amenity.fromJson(x)),
-      ),
-      courtNumbers: json['courtNumbers'] == null
-          ? []
-          : List<int>.from(json['courtNumbers']),
-      everyServiceStatus: json['EveryServiceStatus'] ?? '',
-      venueRating: json['venueRating'] ?? '0',
-      venueReviewCount: json['venueReviewCount'] ?? 0,
-      createdAt: json['createdAt'] ?? '',
-      updatedAt: json['updatedAt'] ?? '',
-      vendorId: json['vendorId'] ?? '',
+          : List<Amenity>.from(json['amenities'].map((x) => Amenity.fromJson(x))),
+
+      venueRating: json['venueRating']?.toString() ?? '0.0',
+      venueReviewCount: int.tryParse(json['venueReviewCount']?.toString() ?? '0') ?? 0,
+
       venueAvailabilities: json['venueAvailabilities'] == null
           ? []
           : List<VenueAvailability>.from(
-        json['venueAvailabilities']
-            .map((x) => VenueAvailability.fromJson(x)),
-      ),
+          json['venueAvailabilities'].map((x) => VenueAvailability.fromJson(x))),
     );
   }
 }
 
-/// ================= AMENITY =================
 class Amenity {
   final String amenityName;
-
   Amenity({required this.amenityName});
-
   factory Amenity.fromJson(Map<String, dynamic> json) {
-    return Amenity(
-      amenityName: json['amenityName'] ?? '',
-    );
+    return Amenity(amenityName: json['amenityName']?.toString() ?? '');
   }
 }
 
-/// ================= AVAILABILITY =================
 class VenueAvailability {
-  final String id;
   final String day;
-  final String createdAt;
-  final String venueId;
   final List<ScheduleSlot> scheduleSlots;
-
-  VenueAvailability({
-    required this.id,
-    required this.day,
-    required this.createdAt,
-    required this.venueId,
-    required this.scheduleSlots,
-  });
-
+  VenueAvailability({required this.day, required this.scheduleSlots});
   factory VenueAvailability.fromJson(Map<String, dynamic> json) {
     return VenueAvailability(
-      id: json['id'] ?? '',
-      day: json['day'] ?? '',
-      createdAt: json['createdAt'] ?? '',
-      venueId: json['venueId'] ?? '',
+      day: json['day']?.toString() ?? '',
       scheduleSlots: json['scheduleSlots'] == null
           ? []
-          : List<ScheduleSlot>.from(
-        json['scheduleSlots']
-            .map((x) => ScheduleSlot.fromJson(x)),
-      ),
+          : List<ScheduleSlot>.from(json['scheduleSlots'].map((x) => ScheduleSlot.fromJson(x))),
     );
   }
 }
 
-/// ================= SLOT =================
 class ScheduleSlot {
-  final String id;
   final String from;
   final String to;
-  final String venueId;
-  final String availableVenueId;
-
-  ScheduleSlot({
-    required this.id,
-    required this.from,
-    required this.to,
-    required this.venueId,
-    required this.availableVenueId,
-  });
-
+  ScheduleSlot({required this.from, required this.to});
   factory ScheduleSlot.fromJson(Map<String, dynamic> json) {
     return ScheduleSlot(
-      id: json['id'] ?? '',
-      from: json['from'] ?? '',
-      to: json['to'] ?? '',
-      venueId: json['venueId'] ?? '',
-      availableVenueId: json['availableVenueId'] ?? '',
+        from: json['from']?.toString() ?? '',
+        to: json['to']?.toString() ?? ''
     );
   }
 }

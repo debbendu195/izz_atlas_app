@@ -14,7 +14,6 @@ import 'dart:io';
 class VendorEditProfileScreen extends StatelessWidget {
   VendorEditProfileScreen({super.key});
 
-  // কন্ট্রোলার ইনিশিলাইজ করা হলো
   final VendorProfileController controller = Get.put(VendorProfileController());
 
   @override
@@ -27,7 +26,6 @@ class VendorEditProfileScreen extends StatelessWidget {
         titleName: "Edit Profile",
       ),
       body: Obx(() {
-        // ডাটা লোডিং অবস্থা চেক
         if (controller.isProfileLoading.value) {
           return const Center(child: CustomLoader());
         }
@@ -100,7 +98,7 @@ class VendorEditProfileScreen extends StatelessWidget {
                 CustomFormCard(
                   title: "Email",
                   hintText: "email@example.com",
-                  readOnly: true, // ইমেইল সাধারণত এডিট করা যায় না
+                  readOnly: true,
                   controller: controller.emailController.value,
                 ),
 

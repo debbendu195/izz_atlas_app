@@ -1,16 +1,30 @@
 import 'package:flutter/material.dart';
 import '../../../../../utils/app_colors/app_colors.dart';
 import '../../../../../utils/app_icons/app_icons.dart';
-import '../../../../components/custom_button/custom_button.dart';
 import '../../../../components/custom_image/custom_image.dart';
 import '../../../../components/custom_text/custom_text.dart';
 import 'custom_booking_card.dart';
+
 class CustomMyVenuesMainCard extends StatelessWidget {
   final String? iconData;
   final String? title;
   final String? subTitle;
   final String? buttonText;
-  const CustomMyVenuesMainCard({super.key, this.iconData, this.title, this.subTitle, this.buttonText});
+
+  final VoidCallback? onTapEdit;
+  final VoidCallback? onTapAvailability;
+  final VoidCallback? onTapDetails;
+
+  const CustomMyVenuesMainCard({
+    super.key,
+    this.iconData,
+    this.title,
+    this.subTitle,
+    this.buttonText,
+    this.onTapEdit,
+    this.onTapAvailability,
+    this.onTapDetails,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -33,19 +47,20 @@ class CustomMyVenuesMainCard extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        CustomImage(imageSrc: iconData?? AppIcons.venues1),
+                        CustomImage(imageSrc: iconData ?? AppIcons.venues1),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             CustomText(
                               left: 8,
-                              text: title?? "Green Valley Football",
+                              text: title ?? "Green Valley Football",
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
                               color: AppColors.white,
-                            ),CustomText(
+                            ),
+                            CustomText(
                               left: 8,
-                              text: subTitle?? "Dhaka, Bangladesh",
+                              text: subTitle ?? "Dhaka, Bangladesh",
                               fontSize: 14,
                               fontWeight: FontWeight.w400,
                               color: AppColors.textClr,
@@ -64,7 +79,7 @@ class CustomMyVenuesMainCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(30),
                           ),
                           child: CustomText(
-                            text: buttonText?? "Active",
+                            text: buttonText ?? "Active",
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
                             color: AppColors.black,
@@ -82,12 +97,25 @@ class CustomMyVenuesMainCard extends StatelessWidget {
                   ],
                 ),
                 SizedBox(height: 10,),
+
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    CustomBookingCard(title: "Edit",icon: AppIcons.edit,),
-                    CustomBookingCard(title: "Availability",icon: AppIcons.calender,),
-                    CustomBookingCard(title: "Details",icon: AppIcons.eyeIcon,),
+                    CustomBookingCard(
+                      title: "Edit",
+                      icon: AppIcons.edit,
+                      onTap: onTapEdit,
+                    ),
+                    CustomBookingCard(
+                      title: "Availability",
+                      icon: AppIcons.calender,
+                      onTap: onTapAvailability,
+                    ),
+                    CustomBookingCard(
+                      title: "Details",
+                      icon: AppIcons.eyeIcon,
+                      onTap: onTapDetails,
+                    ),
                   ],
                 )
               ],

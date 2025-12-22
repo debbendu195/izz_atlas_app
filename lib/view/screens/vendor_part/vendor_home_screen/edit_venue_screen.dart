@@ -1,27 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
-import 'package:izz_atlas_app/utils/app_icons/app_icons.dart';
 import 'package:izz_atlas_app/view/components/custom_button/custom_button.dart';
 import 'package:izz_atlas_app/view/components/custom_from_card/custom_from_card.dart';
-import 'package:izz_atlas_app/view/components/custom_image/custom_image.dart';
+import 'package:izz_atlas_app/view/components/custom_netwrok_image/custom_network_image.dart';
 import 'package:izz_atlas_app/view/components/custom_royel_appbar/custom_royel_appbar.dart';
 import '../../../../utils/app_colors/app_colors.dart';
 import '../../../components/custom_text/custom_text.dart';
-import 'controller/vendor_home_controller.dart';
+import '../../../components/custom_text_field/custom_text_field.dart';
+import 'controller/edit_venue_controller.dart';
 
-// ================== SCREEN ==================
 class EditVenueScreen extends StatelessWidget {
   const EditVenueScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final AddVenueController controller = Get.put(AddVenueController());
+    final EditVenueController controller = Get.put(EditVenueController());
 
     return Scaffold(
       backgroundColor: AppColors.white,
-      appBar: CustomRoyelAppbar(leftIcon: true, titleName: "Edit Venu"),
+      appBar: CustomRoyelAppbar(leftIcon: true, titleName: "Edit Venue"),
       body: Obx(() {
+        if (controller.isLoading.value) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
         return Stack(
           children: [
             Padding(
@@ -47,13 +49,20 @@ class EditVenueScreen extends StatelessWidget {
                               : null,
                         ),
                         child: controller.selectedImage.value == null
-                            ? Column(
+                            ? (controller.networkImage.value.isNotEmpty
+                            ? CustomNetworkImage(
+                          imageUrl: controller.networkImage.value,
+                          height: 192,
+                          width: double.infinity,
+                          borderRadius: BorderRadius.circular(12),
+                        )
+                            : Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(Icons.add_a_photo, size: 40, color: Colors.grey),
                             Text("Tap to upload venue image"),
                           ],
-                        )
+                        ))
                             : null,
                       ),
                     ),
@@ -62,8 +71,8 @@ class EditVenueScreen extends StatelessWidget {
                     // ============= Form Fields =============
                     CustomFormCard(
                       title: "Venue Name",
-                      hintText: "Downtown Sports Complex",
-                      controller: TextEditingController(),
+                      hintText: "Venue Name",
+                      controller: controller.venueNameController,
                     ),
 
                     // ========== Sports Type Dropdown ==========
@@ -100,7 +109,6 @@ class EditVenueScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    // ===============================================
 
                     Row(
                       children: [
@@ -109,7 +117,7 @@ class EditVenueScreen extends StatelessWidget {
                             title: "Price/Hour",
                             hintText: "1200",
                             keyboardType: TextInputType.number,
-                            controller: TextEditingController(),
+                            controller: controller.priceController,
                           ),
                         ),
                         SizedBox(width: 8),
@@ -118,15 +126,24 @@ class EditVenueScreen extends StatelessWidget {
                             title: "Capacity",
                             hintText: "22",
                             keyboardType: TextInputType.number,
-                            controller: TextEditingController(),
+                            controller: controller.capacityController,
                           ),
                         ),
                       ],
                     ),
+
+                    // ✅ Added Court Number Field
+                    CustomFormCard(
+                      title: "Court Numbers",
+                      hintText: "e.g. 5",
+                      keyboardType: TextInputType.number,
+                      controller: controller.courtNumberController,
+                    ),
+
                     CustomFormCard(
                       title: "Location",
-                      hintText: "Dhanmondi, Dhaka",
-                      controller: TextEditingController(),
+                      hintText: "Location",
+                      controller: controller.locationController,
                     ),
 
                     const SizedBox(height: 16),
@@ -208,13 +225,14 @@ class EditVenueScreen extends StatelessWidget {
 
                                 // Slots Loop
                                 ...List.generate(slots.length, (slotIndex) {
+                                  var slot = slots[slotIndex];
                                   return Padding(
                                     padding: const EdgeInsets.only(bottom: 12.0),
                                     child: Row(
                                       children: [
                                         Expanded(
                                           child: _buildTimeController(
-                                            time: slots[slotIndex]['start'],
+                                            time: slot['start'].toString(),
                                             onDecrease: () => controller.changeTime(dayIndex, slotIndex, "start", -30),
                                             onIncrease: () => controller.changeTime(dayIndex, slotIndex, "start", 30),
                                           ),
@@ -222,7 +240,7 @@ class EditVenueScreen extends StatelessWidget {
                                         const SizedBox(width: 8),
                                         Expanded(
                                           child: _buildTimeController(
-                                            time: slots[slotIndex]['end'],
+                                            time: slot['end'].toString(),
                                             onDecrease: () => controller.changeTime(dayIndex, slotIndex, "end", -30),
                                             onIncrease: () => controller.changeTime(dayIndex, slotIndex, "end", 30),
                                           ),
@@ -251,7 +269,9 @@ class EditVenueScreen extends StatelessWidget {
                         );
                       }),
                     ),
+
                     const SizedBox(height: 12),
+
                     SizedBox(
                       width: double.infinity,
                       height: 50,
@@ -272,28 +292,51 @@ class EditVenueScreen extends StatelessWidget {
                     ),
 
                     const SizedBox(height: 16),
-                    CustomText(text: "Amenities", fontSize: 16, fontWeight: FontWeight.w700),
+
+                    // ============= Amenities Section =============
+                    Row(
+                      children: [
+                        CustomText(text: "Amenities", fontSize: 16, fontWeight: FontWeight.w700),
+                        const Spacer(),
+                        InkWell(
+                            onTap: () {
+                              _showAddAmenityDialog(context, controller);
+                            },
+                            child: Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[200],
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Row(
+                                    children: [
+                                      Icon(Icons.add, color: Colors.black),
+                                      const SizedBox(width: 4),
+                                      CustomText(text: "Add New", fontSize: 14, fontWeight: FontWeight.w600),
+                                    ]
+                                )
+                            )
+                        )
+                      ],
+                    ),
                     const SizedBox(height: 16),
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          _amenitySelectableItem(controller, AppIcons.wifi, "Wi-Fi"),
-                          SizedBox(width: 10),
-                          _amenitySelectableItem(controller, AppIcons.wifi2, "Flood Lights"),
-                          SizedBox(width: 10),
-                          _amenitySelectableItem(controller, AppIcons.wifi3, "Changing Room"),
-                          SizedBox(width: 10),
-                          _amenitySelectableItem(controller, AppIcons.wifi3, "Parking"),
-                        ],
-                      ),
+                      child: Obx(() => Row(
+                        children: controller.amenitiesList.map((amenity) {
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 10),
+                            child: _amenitySelectableItem(controller, amenity),
+                          );
+                        }).toList(),
+                      )),
                     ),
-
+                    const SizedBox(height: 20),
                     CustomFormCard(
                       title: "Description",
-                      hintText: "Type description here...",
+                      hintText: "Description",
                       maxLine: 4,
-                      controller: TextEditingController(),
+                      controller: controller.descriptionController,
                     ),
 
                     const SizedBox(height: 20),
@@ -310,10 +353,12 @@ class EditVenueScreen extends StatelessWidget {
                         ),
                         const SizedBox(width: 8),
                         Flexible(
-                          child: CustomButton(
-                            onTap: (){},
+                          child: controller.isUpdating.value
+                              ? const Center(child: CircularProgressIndicator())
+                              : CustomButton(
+                            onTap: controller.updateVenue,
                             textColor: AppColors.white,
-                            title: "Save",
+                            title: "Update",
                           ),
                         )
                       ],
@@ -330,7 +375,7 @@ class EditVenueScreen extends StatelessWidget {
   }
 
   // Helper Widgets
-  Widget _amenitySelectableItem(AddVenueController controller, String icon, String text) {
+  Widget _amenitySelectableItem(EditVenueController controller, String text) {
     return Obx(() {
       bool isSelected = controller.selectedAmenities.contains(text);
       return GestureDetector(
@@ -345,17 +390,11 @@ class EditVenueScreen extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: isSelected ? Colors.transparent : Colors.grey),
           ),
-          child: Row(
-            children: [
-              CustomImage(imageSrc: icon, imageColor: isSelected ? Colors.white : Colors.black),
-              CustomText(
-                  left: 8,
-                  text: text,
-                  fontSize: 14,
-                  color: isSelected ? AppColors.white : Colors.black,
-                  fontWeight: FontWeight.w600
-              ),
-            ],
+          child: CustomText(
+              text: text,
+              fontSize: 14,
+              color: isSelected ? AppColors.white : Colors.black,
+              fontWeight: FontWeight.w600
           ),
         ),
       );
@@ -389,5 +428,67 @@ class EditVenueScreen extends StatelessWidget {
       ),
     );
   }
-}
 
+  void _showAddAmenityDialog(BuildContext context, EditVenueController controller) {
+    final TextEditingController textController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          backgroundColor: Colors.white,
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: CustomText(
+                    text: "Add New Amenity",
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                CustomText(text: "Amenity Name", fontSize: 14, fontWeight: FontWeight.w600, bottom: 8),
+                CustomTextField(
+                  textEditingController: textController,
+                  hintText: "Ex: AC, Locker, CCTV",
+                  fieldBorderColor: Colors.grey.shade300,
+                  fillColor: Colors.white,
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Expanded(
+                      child: CustomButton(
+                        onTap: () => Get.back(),
+                        title: "Cancel",
+                        fillColor: Colors.grey.shade200,
+                        textColor: Colors.black,
+                        height: 45,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: CustomButton(
+                        onTap: () {
+                          controller.addCustomAmenity(textController.text.trim());
+                        },
+                        title: "Add",
+                        textColor: Colors.white,
+                        height: 45,
+                      ),
+                    ),
+                  ],
+                )
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}

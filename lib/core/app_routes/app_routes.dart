@@ -35,6 +35,8 @@ import '../../view/screens/vendor_part/vendor_home_screen/vendor_booking_details
 import '../../view/screens/vendor_part/vendor_home_screen/vendor_booking_request_screen.dart';
 import '../../view/screens/vendor_part/vendor_home_screen/vendor_home_screen.dart';
 import '../../view/screens/vendor_part/vendor_home_screen/vendor_my_venues_screen.dart';
+import '../../view/screens/vendor_part/vendor_home_screen/venue_availability_screen.dart';
+import '../../view/screens/vendor_part/vendor_home_screen/venue_details_screen.dart';
 import '../../view/screens/vendor_part/vendor_profile_screen/vendor_about_us_screen.dart';
 import '../../view/screens/vendor_part/vendor_profile_screen/vendor_account_settings.dart';
 import '../../view/screens/vendor_part/vendor_profile_screen/vendor_change_password_screen.dart';
@@ -97,6 +99,8 @@ class AppRoutes {
   static const String userMyBookingsScreen = "/UserMyBookingsScreen";
   static const String userAllSportsScreen = "/UserAllSportsScreen";
   static const String editVenueScreen = "/EditVenueScreen";
+  static const String venueDetailsScreen = "/VenueDetailsScreen";
+  static const String venueAvailabilityScreen = "/VenueAvailabilityScreen";
 
 
   static List<GetPage> routes = [
@@ -150,6 +154,8 @@ class AppRoutes {
     GetPage(name: userMyBookingsScreen, page: () => UserMyBookingsScreen()),
     GetPage(name: userAllSportsScreen, page: () => UserAllSportsScreen()),
     GetPage(name: editVenueScreen, page: () => EditVenueScreen()),
+    GetPage(name: venueDetailsScreen, page: () => VenueDetailsScreen()),
+    GetPage(name: venueAvailabilityScreen, page: () => VenueAvailabilityScreen()),
 
 
   ];

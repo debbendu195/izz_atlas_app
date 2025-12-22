@@ -1,13 +1,12 @@
 class ApiUrl {
   /// ================= BASE URL =================
-  static const String baseUrl = "https://consecutive-collaborative-earned-inherited.trycloudflare.com/api/v1";
+  static const String baseUrl = "https://lake-near-performance-variable.trycloudflare.com/api/v1";
   static const String imageUrl = "";
 
   /// ================= AUTHENTICATION =================
   static const String signUp = "/users";
   static const String signIn = "/auth/login";
 
-  // === Updated Endpoints based on your screenshots ===
   static const String forgotPassword = "/auth/forgot-password";
   static const String verifyOtp = "/auth/verify-otp";
   static const String resetPassword = "/auth/reset-password";
@@ -23,5 +22,6 @@ class ApiUrl {
   static const String createVenue = "/venues";
   static const String vendorMyVenues = "/venues/my";
   static String userVenueDetails({required String id}) => "/venues/$id";
+  static String updateVenue({required String id}) => "/venues/$id";
 
 }

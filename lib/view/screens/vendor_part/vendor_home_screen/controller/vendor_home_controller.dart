@@ -11,8 +11,10 @@ class AddVenueController extends GetxController {
   final TextEditingController venueNameController = TextEditingController();
   final TextEditingController priceController = TextEditingController();
   final TextEditingController capacityController = TextEditingController();
+  final TextEditingController courtNumberController = TextEditingController();
   final TextEditingController locationController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
+  final TextEditingController newAmenityController = TextEditingController();
 
   // ================= Reactive Variables =================
   var selectedSportType = "FOOTBALL".obs;
@@ -25,6 +27,7 @@ class AddVenueController extends GetxController {
 
   // Amenities
   var selectedAmenities = <String>[].obs;
+  var customAmenities = <String>[].obs;
 
   // Sports List
   final List<String> sportsTypeList = [
@@ -61,6 +64,18 @@ class AddVenueController extends GetxController {
       selectedAmenities.remove(amenity);
     } else {
       selectedAmenities.add(amenity);
+    }
+  }
+
+  void addNewAmenity() {
+    if (newAmenityController.text.trim().isNotEmpty) {
+      String name = newAmenityController.text.trim();
+      if (!customAmenities.contains(name)) {
+        customAmenities.add(name);
+      }
+
+      newAmenityController.clear();
+      Get.back();
     }
   }
 
@@ -141,42 +156,26 @@ class AddVenueController extends GetxController {
     }
   }
 
-  // ================= API Call (Updated for Success/Error Messages) =================
+  // ================= API Call =================
   Future<void> createVenue() async {
-    // 1. Validation
     if (venueNameController.text.isEmpty || selectedImage.value == null) {
-      Get.snackbar(
-        "Required",
-        "Please fill all fields and select an image",
-        backgroundColor: Colors.redAccent,
-        colorText: Colors.white,
-        snackPosition: SnackPosition.BOTTOM,
-        margin: const EdgeInsets.all(10),
-      );
+      Get.snackbar("Required", "Please fill all fields and select an image",
+          backgroundColor: Colors.redAccent, colorText: Colors.white, snackPosition: SnackPosition.BOTTOM, margin: const EdgeInsets.all(10));
       return;
     }
 
     try {
       isLoading.value = true;
 
-      // 2. Schedule Formatting
       List<Map<String, dynamic>> venueAvailabilities = [];
       for (var dayBlock in scheduleList) {
         if (dayBlock['isActive'] == true) {
           List<Map<String, String>> slots = dayBlock['slots'];
-          List<Map<String, String>> formattedSlots = slots.map((s) => {
-            "from": s['start']!,
-            "to": s['end']!
-          }).toList();
-
-          venueAvailabilities.add({
-            "day": dayBlock['day'],
-            "scheduleSlots": formattedSlots
-          });
+          List<Map<String, String>> formattedSlots = slots.map((s) => {"from": s['start']!, "to": s['end']!}).toList();
+          venueAvailabilities.add({"day": dayBlock['day'], "scheduleSlots": formattedSlots});
         }
       }
 
-      // 3. Request Body
       Map<String, dynamic> venueDataObj = {
         "venueName": venueNameController.text.trim(),
         "sportsType": selectedSportType.value,
@@ -185,91 +184,40 @@ class AddVenueController extends GetxController {
         "location": locationController.text.trim(),
         "description": descriptionController.text.trim(),
         "amenities": selectedAmenities.map((e) => {"amenityName": e}).toList(),
-        "courtNumbers": 1,
+        "courtNumbers": int.tryParse(courtNumberController.text.trim()) ?? 1,
         "venueStatus": isVenueActive.value,
         "venueAvailabilities": venueAvailabilities
       };
 
-      Map<String, String> body = {
-        'data': jsonEncode(venueDataObj)
-      };
-
+      Map<String, String> body = {'data': jsonEncode(venueDataObj)};
       List<MultipartBody> multipartList = [];
       if (selectedImage.value != null) {
         multipartList.add(MultipartBody('venueImage', selectedImage.value!));
       }
 
-      // 4. API Hit
-      var response = await ApiClient.postMultipartData(
-        ApiUrl.createVenue,
-        body,
-        multipartBody: multipartList,
-      );
-
+      var response = await ApiClient.postMultipartData(ApiUrl.createVenue, body, multipartBody: multipartList);
       isLoading.value = false;
 
-      // 5. Check Response & Show Message
       if (response.statusCode == 200 || response.statusCode == 201) {
-
-        // === SUCCESS MESSAGE ===
         _clearFields();
-        Get.snackbar(
-          "Success",
-          "Venue Created Successfully!",
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
-          snackPosition: SnackPosition.BOTTOM,
-          margin: const EdgeInsets.all(10),
-          borderRadius: 10,
-          duration: const Duration(seconds: 3),
-        );
-
-        // Go back to previous screen
+        Get.snackbar("Success", "Venue Created Successfully!", backgroundColor: Colors.green, colorText: Colors.white, snackPosition: SnackPosition.BOTTOM, margin: const EdgeInsets.all(10), borderRadius: 10, duration: const Duration(seconds: 3));
         Get.back();
-
       } else {
-
-        // === ERROR MESSAGE ===
-        // Safely parse error message from body
         String errorMessage = "Failed to create venue";
         try {
-          // যদি body স্ট্রিং হয়, ডিকোড করো, আর যদি ম্যাপ হয় সরাসরি নাও
-          var jsonResponse = (response.body is String)
-              ? jsonDecode(response.body)
-              : response.body;
-
+          var jsonResponse = (response.body is String) ? jsonDecode(response.body) : response.body;
           if(jsonResponse != null && jsonResponse['message'] != null) {
             errorMessage = jsonResponse['message'];
           }
         } catch(e) {
           print("Error parsing response: $e");
         }
-
-        print("API Error: ${response.statusCode} - $errorMessage");
-
-        Get.snackbar(
-          "Error",
-          errorMessage,
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-          snackPosition: SnackPosition.BOTTOM,
-          margin: const EdgeInsets.all(10),
-          borderRadius: 10,
-          duration: const Duration(seconds: 3),
-        );
+        Get.snackbar("Error", errorMessage, backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.BOTTOM, margin: const EdgeInsets.all(10), borderRadius: 10, duration: const Duration(seconds: 3));
       }
-
     } catch (e) {
       isLoading.value = false;
       print("Exception: $e");
-      Get.snackbar(
-        "Error",
-        "Something went wrong. Please check your connection.",
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-        snackPosition: SnackPosition.BOTTOM,
-        margin: const EdgeInsets.all(10),
-      );
+      Get.snackbar("Error", "Something went wrong.", backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.BOTTOM, margin: const EdgeInsets.all(10));
     }
   }
 
@@ -277,16 +225,15 @@ class AddVenueController extends GetxController {
     venueNameController.clear();
     priceController.clear();
     capacityController.clear();
+    courtNumberController.clear();
     locationController.clear();
     descriptionController.clear();
+    newAmenityController.clear();
     selectedImage.value = null;
     selectedAmenities.clear();
+    customAmenities.clear();
     scheduleList.assignAll([
-      {
-        "day": "Sunday",
-        "isActive": true,
-        "slots": [{"start": "09:00 AM", "end": "10:00 AM"}]
-      }
+      {"day": "Sunday", "isActive": true, "slots": [{"start": "09:00 AM", "end": "10:00 AM"}]}
     ]);
   }
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:izz_atlas_app/utils/app_colors/app_colors.dart';
-import 'package:izz_atlas_app/utils/app_icons/app_icons.dart';
 import 'package:izz_atlas_app/view/components/custom_button/custom_button.dart';
 import 'package:izz_atlas_app/view/components/custom_royel_appbar/custom_royel_appbar.dart';
 import 'package:izz_atlas_app/view/components/custom_text/custom_text.dart';
@@ -51,7 +50,7 @@ class VendorMyVenuesScreen extends StatelessWidget {
                 ),
               ],
             ),
-            SizedBox(height: 20,),
+            const SizedBox(height: 20),
 
             Expanded(
               child: Obx(() {
@@ -80,6 +79,18 @@ class VendorMyVenuesScreen extends StatelessWidget {
                         title: venue.venueName,
                         subTitle: venue.location,
                         buttonText: venue.venueStatus ? "Active" : "Inactive",
+
+                        onTapEdit: () {
+                          Get.toNamed(AppRoutes.editVenueScreen, arguments: venue.id);
+                        },
+
+                        onTapAvailability: () {
+                          Get.toNamed(AppRoutes.venueAvailabilityScreen, arguments: venue.id);
+                        },
+
+                        onTapDetails: () {
+                          Get.toNamed(AppRoutes.userVenueDetailsScreen, arguments: venue.id);
+                        },
                       ),
                     );
                   },
