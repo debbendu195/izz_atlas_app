@@ -153,32 +153,53 @@ class UserVenueDetailsScreen extends StatelessWidget {
                 ),
                 SizedBox(height: 16),
 
-                // Operation Hours (Dynamic List)
+                // ================= UPDATED OPERATION HOURS SECTION =================
+                // এখন সব স্লট আলাদা আলাদা দেখাবে
                 if (venue.venueAvailabilities.isNotEmpty)
                   ...venue.venueAvailabilities.map((availability) {
-                    String timeRange = "Closed";
-                    if(availability.scheduleSlots.isNotEmpty) {
-                      timeRange = "${availability.scheduleSlots.first.from} - ${availability.scheduleSlots.last.to}";
-                    }
                     return Padding(
-                      padding: const EdgeInsets.only(bottom: 8.0),
+                      padding: const EdgeInsets.only(bottom: 12.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          // Day Name (e.g., SUNDAY)
                           CustomText(
                             text: availability.day,
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
                           ),
-                          CustomText(
-                            text: timeRange,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
+
+                          // Time Slots List (e.g., 09:00 AM - 10:00 AM)
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: availability.scheduleSlots.isEmpty
+                                  ? [
+                                CustomText(
+                                  text: "Closed",
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.red,
+                                )
+                              ]
+                                  : availability.scheduleSlots.map((slot) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 4.0),
+                                  child: CustomText(
+                                    text: "${slot.from} - ${slot.to}",
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                );
+                              }).toList(),
+                            ),
                           ),
                         ],
                       ),
                     );
                   }),
+                // ================= END UPDATED SECTION =================
 
                 SizedBox(height: 16),
 
@@ -188,8 +209,6 @@ class UserVenueDetailsScreen extends StatelessWidget {
                   onTap: controller.toggleAmenities,
                 ),
                 const SizedBox(height: 6),
-                Center(child: CustomImage(imageSrc: AppIcons.arrowDown)),
-
                 Obx(() => controller.isAmenitiesOpen.value
                     ? amenitiesWidget(venue.amenities)
                     : const SizedBox()),

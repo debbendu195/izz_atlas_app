@@ -1,24 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:izz_atlas_app/core/app_routes/app_routes.dart';
 import 'package:izz_atlas_app/utils/app_const/app_const.dart';
-import 'package:izz_atlas_app/utils/app_icons/app_icons.dart';
-import 'package:izz_atlas_app/view/components/custom_image/custom_image.dart';
-import 'package:izz_atlas_app/view/components/custom_nav_bar/navbar.dart';
+import 'package:izz_atlas_app/view/components/custom_nav_bar/vendor_navbar.dart';
 import 'package:izz_atlas_app/view/components/custom_netwrok_image/custom_network_image.dart';
 import 'package:izz_atlas_app/view/components/custom_text/custom_text.dart';
 import 'package:izz_atlas_app/view/screens/user_part/user_profile_screen/widgets/custom_profile_card.dart';
 
 import '../../../../utils/app_colors/app_colors.dart';
 import '../../../components/custom_logout_popup/custom_logout_popup.dart';
-import '../../../components/custom_nav_bar/vendor_navbar.dart';
+import '../../../components/custom_show_dialog/custom_show_dialog.dart';
+import 'controller/vendor_profile_controller.dart';
 
 class VendorProfileScreen extends StatelessWidget {
-  const VendorProfileScreen({super.key});
+  VendorProfileScreen({super.key});
+
+  final VendorProfileController vendorProfileController = Get.put(VendorProfileController());
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      vendorProfileController.getUserProfile();
+    });
+
     return Scaffold(
       backgroundColor: AppColors.white,
       body: SingleChildScrollView(
@@ -27,24 +31,38 @@ class VendorProfileScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  CustomNetworkImage(
-                    imageUrl: AppConstants.girlsPhoto,
-                    height: 80,
-                    width: 80,
-                    boxShape: BoxShape.circle,
-                    border: Border.all(color: Colors.amberAccent, width: 2),
-                  ),
-                  CustomText(
-                    left: 8,
-                    text: "Mehedi Bin Ab. Salam",
-                    fontWeight: FontWeight.w600,
-                    fontSize: 20,
-                  ),
-                ],
-              ),
-              SizedBox(height: 20),
+              // ================= Dynamic Profile Section =================
+              Obx(() {
+                final userModel = vendorProfileController.userProfileModel.value;
+                return Row(
+                  children: [
+                    CustomNetworkImage(
+                      imageUrl: (userModel.photo.isNotEmpty)
+                          ? userModel.photo
+                          : AppConstants.profileImage,
+                      height: 80,
+                      width: 80,
+                      boxShape: BoxShape.circle,
+                      border: Border.all(color: Colors.amberAccent, width: 2),
+                    ),
+                    Expanded(
+                      child: CustomText(
+                        left: 8,
+                        text: userModel.name.isNotEmpty
+                            ? userModel.name
+                            : "Vendor Name",
+                        fontWeight: FontWeight.w600,
+                        fontSize: 20,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                );
+              }),
+              // =======================================================
+
+              const SizedBox(height: 20),
               CustomProfileCard(
                 nameTitle: "Chats",
                 onTap: () {
@@ -81,22 +99,21 @@ class VendorProfileScreen extends StatelessWidget {
                     context: context,
                     builder: (ctx) => AlertDialog(
                       backgroundColor: AppColors.white,
-                      insetPadding: EdgeInsets.all(8),
-                      contentPadding: EdgeInsets.all(8),
+                      insetPadding: const EdgeInsets.all(8),
+                      contentPadding: const EdgeInsets.all(8),
                       content: SizedBox(
                         width: MediaQuery.sizeOf(context).width,
                         child: CustomShowDialog(
                           textColor: AppColors.black,
                           buttonTextColor: AppColors.white,
                           title: "Logout Your Account",
-                          discription:
-                          "Are you sure you want to\n Vendor  Logout",
+                          discription: "Are you sure you want to\n Vendor Logout?",
                           showRowButton: true,
                           showCloseButton: true,
                           leftTextButton: "Yes",
                           rightTextButton: "No",
                           leftOnTap: (){
-                            Get.toNamed(AppRoutes.frameScreen);
+                            Get.offAllNamed(AppRoutes.loginScreen);
                           },
                           rightOnTap: () {
                             Get.back();
@@ -111,10 +128,10 @@ class VendorProfileScreen extends StatelessWidget {
                   color: Colors.transparent,
                   child: Container(
                     width: MediaQuery.sizeOf(context).width,
-                    padding: EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
-                      gradient: LinearGradient(
+                      gradient: const LinearGradient(
                         colors: [Color(0xffEF4444), Color(0xff1E1E1E)],
                       ),
                     ),

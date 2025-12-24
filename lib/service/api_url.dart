@@ -1,6 +1,6 @@
 class ApiUrl {
   /// ================= BASE URL =================
-  static const String baseUrl = "https://lake-near-performance-variable.trycloudflare.com/api/v1";
+  static const String baseUrl = "https://functions-passport-arrange-concentration.trycloudflare.com/api/v1";
   static const String imageUrl = "";
 
   /// ================= AUTHENTICATION =================

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:intl/intl.dart';
 import 'package:izz_atlas_app/view/components/custom_button/custom_button.dart';
 import 'package:izz_atlas_app/view/components/custom_button/custom_button_two.dart';
 import 'package:izz_atlas_app/view/components/custom_royel_appbar/custom_royel_appbar.dart';
@@ -22,9 +21,9 @@ class _BookingScreenState extends State<BookYourSlotScreen> {
   final List<String> availableTimes = [
     "07:00",
     "02:00",
-    "02:00",
-    "02:00",
-    "02:00",
+    "03:00",
+    "04:00",
+    "05:00",
   ];
   final List<String> availableCourts = ["05", "08", "10", "06", "04"];
 
